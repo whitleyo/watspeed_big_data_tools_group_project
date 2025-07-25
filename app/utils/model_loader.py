@@ -13,8 +13,10 @@ def download_s3_model(bucket: str, prefix: str, dest_dir: str):
 
 def load_model(local_dir: str, use_sentence_transformers=False):
     if use_sentence_transformers:
+        # Assume SentenceTransformers model
         return SentenceTransformer(local_dir), None
     else:
+        # Assume transformers model
         tokenizer = AutoTokenizer.from_pretrained(local_dir)
         config = AutoConfig.from_pretrained(local_dir)
         model = AutoModel.from_pretrained(local_dir, config=config)

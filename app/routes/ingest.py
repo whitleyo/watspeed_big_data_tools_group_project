@@ -10,3 +10,5 @@ async def ingest_data():
     data = await s3_loader.load_json_from_s3(key)
     await mongo.collection.insert_many(data)
     return {"status": "Ingested", "count": len(data)}
+
+# NOTE: We might want to implement streaming via Kafka

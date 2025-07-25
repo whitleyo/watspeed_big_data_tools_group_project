@@ -17,6 +17,8 @@ async def abstract_query():
         output_html = os.path.join(tmp_dir, "report.html")
 
         # Run Papermill and nbconvert synchronously (wrapped in thread executor)
+        # NOTE: change "notebooks/template.ipynb" to your actual notebook path
+        # Ensure that the notebook is in the correct path relative to this script
         await asyncio.to_thread(subprocess.run, [
             "papermill", "notebooks/template.ipynb", temp_ipynb,
             "-p", "query", query_text,
