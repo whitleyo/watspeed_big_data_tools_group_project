@@ -74,6 +74,7 @@ dependencies:
   - libzlib
   - markupsafe
   - matplotlib
+  - nbconvert
   - ncurses
   - numpy
   - openjpeg
@@ -81,6 +82,7 @@ dependencies:
   - openssl
   - packaging
   - pandas
+  - papermill
   - pcre2
   - pillow
   - pip
