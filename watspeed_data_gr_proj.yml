@@ -22,8 +22,7 @@ dependencies:
   - click
   - cyrus-sasl
   - expat
-  - flask
-  - flask-socketio
+  - feedparser
   - font-ttf-dejavu-sans-mono
   - font-ttf-inconsolata
   - font-ttf-source-code-pro
@@ -37,12 +36,15 @@ dependencies:
   - h11
   - h2
   - hpack
+  - hypercorn
   - hyperframe
   - icu
   - idna
   - iniconfig
+  - ipython
   - itsdangerous
   - jinja2
+  - jupyterlab
   - krb5
   - lcms2
   - ld_impl_linux-64
@@ -97,15 +99,17 @@ dependencies:
   - pydantic
   - pydantic-core
   - pyee
+  - pymongo
   - pysocks
   - pytest
   - pytest-base-url
   - pytest-playwright
-  - python
+  - python=3.12
   - python-engineio
   - python-slugify
   - python-socketio
   - python_abi
+  - quart
   - readline
   - reportlab
   - requests
@@ -122,7 +126,6 @@ dependencies:
   - typing_extensions
   - tzdata
   - urllib3
-  - werkzeug
   - wheel
   - wsproto
   - xorg-libice
@@ -139,10 +142,11 @@ dependencies:
   - zstandard
   - zstd
   - pip:
-      - asyncio
-      - flask-injector
-      - injector
-      - requests-mock
+      - quart==0.18.3
+      - flask==2.3.3
+      - werkzeug<3.0
       - torch 
       - torchvision
       - torchaudio
+      - transformers
+      - sentence-transformers
