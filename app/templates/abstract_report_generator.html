@@ -39,7 +39,7 @@
       const abstract = document.getElementById("abstract").value;
       const top_n = parseInt(document.getElementById("top_n").value);
 
-      const response = await fetch("/abstract_query", {
+      const response = await fetch("/abstract-query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: abstract, top_n })
