@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  quart:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quart_app
+    expose:
+      - "5000"
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - quart
+    restart: always
