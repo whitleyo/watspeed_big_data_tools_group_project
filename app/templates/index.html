@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watspeed Group 6 Literature Analytics Project</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background-color: #f2f2f2;
+        }
+        h1 {
+            color: #333;
+        }
+        .nav-links {
+            margin-top: 1rem;
+        }
+        a {
+            display: block;
+            margin: 0.5rem 0;
+            color: #007acc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Group 6 Project: Biorxiv Literature Analytics</h1>
+    <p>Welcome to the Watspeed Group 6 Literature Analytics Project! This project aims to provide tools for analyzing scientific literature, specifically focusing on abstracts and summaries.</p>
+    <p>We have developed two main tools:</p>
+    <ul>
+        <li><strong>Abstract Query Tool:</strong> Paste an abstract to find similar articles and gain insights.</li>
+        <li><strong>Literature Summary Tool:</strong> Generate a summary of recent literature based on weekly updates.</li>
+    </ul>
+    <p>Select a tool to begin:</p>
+    <div class="nav-links">
+        <a href="{{ url_for('abstract_query.abstract_query_frontend_form') }}">🔍 Abstract Query Tool</a>
+        <a href="{{ url_for('literature_summary.serve_literature_summary') }}">📚 Literature Summary Tool</a>
+    </div>
+</body>
+</html>
