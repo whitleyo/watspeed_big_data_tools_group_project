@@ -11,7 +11,11 @@ def create_app():
     app = Quart(__name__, template_folder="templates")
     app.config.setdefault("PROVIDE_AUTOMATIC_OPTIONS", True)
     app.BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(
+        filename='quart_app.log',       # ← Your log file
+        level=logging.INFO,             # ← Adjust level as needed
+        format='%(asctime)s %(levelname)s %(message)s'
+    )
     logger = logging.getLogger(__name__)
 
     @app.before_serving

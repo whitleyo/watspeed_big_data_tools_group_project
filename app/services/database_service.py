@@ -102,7 +102,7 @@ class DataBaseService:
             max_index = doc.get("index")
             return max_index
 
-    async def get_latest_date_in_db(self, beginning_date=datetime(2025, 8, 8).date()):
+    async def get_latest_date_in_db(self, beginning_date=datetime(2024, 1, 1).date()):
         """
         Retrieves the latest date from the abstracts collection.
         If the collection is empty, returns the specified beginning_date.
@@ -137,7 +137,7 @@ class DataBaseService:
         objects = self.s3.list_objects_v2(Bucket=self.s3_bucket, Prefix=self.s3_prefix).get("Contents", [])
         if objects:
             delete_keys = {"Objects": [{"Key": obj["Key"]} for obj in objects]}
-            print(delete_keys)
+            # print(delete_keys)
             response = self.s3.delete_objects(Bucket=self.s3_bucket, Delete=delete_keys)
             logger.info(f"response: {response}  ")
             logger.info(f"Deleted {len(delete_keys['Objects'])} objects from S3 bucket '{self.s3_bucket}' with prefix '{self.s3_prefix}'.")
@@ -197,7 +197,7 @@ class DataBaseService:
 
                 page += 1
                 if page >= max_pages:
-                    warn(f"Reached max page limit ({max_pages}) for {date_str}. Stopping ingestion.")
+                    logger.warning(f"Reached max page limit ({max_pages}) for {date_str}. Stopping ingestion.")
                     break
 
             current += timedelta(days=1)
