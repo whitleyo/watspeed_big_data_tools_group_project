@@ -11,8 +11,9 @@ def create_app():
     app = Quart(__name__, template_folder="templates")
     app.config.setdefault("PROVIDE_AUTOMATIC_OPTIONS", True)
     app.BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    app.log_path = os.path.join(app.BASE_DIR, "quart_app.log")
     logging.basicConfig(
-        filename='quart_app.log',       # ← Your log file
+        filename=app.log_path,       # ← Your log file
         level=logging.INFO,             # ← Adjust level as needed
         format='%(asctime)s %(levelname)s %(message)s'
     )
@@ -82,7 +83,8 @@ def create_app():
             asyncio.create_task(startup_sequence())
 
     # Register routes
-    from .routes import abstract_query, literature_summary, index
+    from .routes import abstract_query, literature_summary, index, logs
+    app.register_blueprint(logs.bp)
     app.register_blueprint(abstract_query.bp)
     app.register_blueprint(literature_summary.bp)
     app.register_blueprint(index.bp)
