@@ -75,6 +75,16 @@ class DataBaseService:
         self.db.abstracts.create_index([("date", 1)])
         self.db.abstracts.create_index("doi", unique=True)
 
+    def check_db_initialized(self):
+        """
+        Checks if the database is initialized by verifying the existence of the abstracts collection.
+        Returns:
+            bool: True if the abstracts collection exists, False otherwise.
+        """
+        check_result = "abstracts" in self.db.list_collection_names()
+        if not check_result:
+            logger.warning("Database is not initialized. 'abstracts' collection does not exist.")
+        return check_result
 
     async def get_max_index_in_db(self):
         """
@@ -82,10 +92,17 @@ class DataBaseService:
         Returns:
             int: The maximum index found in the database, or None if no documents exist.
         """
+        if not self.check_db_initialized():
+            return None
         doc = self.db.abstracts.find_one(sort=[("index", -1)])
-        return doc["index"] if doc else None
+        if not doc:
+            logger.warning("No documents found in the abstracts collection.")
+            return None
+        else:
+            max_index = doc.get("index")
+            return max_index
 
-    async def get_latest_date_in_db(self, beginning_date=datetime(2025, 8, 1).date()):
+    async def get_latest_date_in_db(self, beginning_date=datetime(2025, 8, 8).date()):
         """
         Retrieves the latest date from the abstracts collection.
         If the collection is empty, returns the specified beginning_date.
@@ -94,7 +111,9 @@ class DataBaseService:
         Returns:
             datetime: The latest date found in the database, or None if no documents exist.
         """
-        if self.db.abstracts.count_documents({}) == 0:
+        if not self.check_db_initialized():
+            return beginning_date
+        elif self.db.abstracts.count_documents({}) == 0:
             return beginning_date
         try:
             doc = self.db.abstracts.find_one(sort=[("date", -1)])
@@ -102,18 +121,28 @@ class DataBaseService:
         except Exception as e:
             assert False, f"Error retrieving latest date from DB: {e}"
 
-    async def ingest(self, start_date, end_date):
+    async def nuke_db(self):
+        """
+        Deletes all documents in the abstracts collection.
+        """
+        logger.info("Nuking the abstracts collection in MongoDB.")
+        if self.check_db_initialized():
+            self.db.abstracts.delete_many({})
+        logger.info("All documents in the abstracts collection have been deleted.")
+
+    async def ingest(self, start_date, end_date, max_pages=5, skip_existing=True):
         """
         Ingests abstracts from the biorxiv API into MongoDB and stores them in S3.
         Skips documents that already exist in the DB based on DOI.
         """
+        if not self.check_db_initialized():
+            logger.warning("Database is not initialized. Cannot ingest data.")
+            return
         current = start_date
         logger.info(f"Starting ingestion from {start_date} to {end_date}.")
         while current <= end_date:
             date_str = current.strftime("%Y-%m-%d")
             page = 0
-            max_pages = 20
-            new_abstracts = []
 
             while page < max_pages:
                 url = f"https://api.biorxiv.org/details/biorxiv/{date_str}/{date_str}/{page}"
@@ -121,13 +150,19 @@ class DataBaseService:
                 response = requests.get(url)
                 data = response.json()
                 abstracts = data.get("collection", [])
-
+                new_abstracts = []
                 if not abstracts:
                     break
 
                 for abstract in abstracts:
                     doi = abstract.get("doi")
-                    if doi and not self.db.abstracts.find_one({"doi": doi}):
+                    is_old = doi and self.db.abstracts.find_one({"doi": doi})
+                    do_insert = True
+                    if skip_existing:
+                        if is_old:
+                            logger.info(f"Skipping existing abstract with DOI: {doi}")
+                            do_insert = False
+                    if do_insert:
                         self.db.abstracts.insert_one(abstract)
                         new_abstracts.append(abstract)
 
