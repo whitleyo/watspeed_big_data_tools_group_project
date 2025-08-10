@@ -68,7 +68,8 @@ def create_app():
                 await app.db_service.ingest(start_date=latest_date, end_date=today)
                 await asyncio.sleep(86400)  # Sleep for 24 hours
         async def startup_sequence():
-            await nuke_db_if_chosen()
+            # config option for nuking may be set to False, but playing it safe
+            # await nuke_db_if_chosen()
             await initialize_db()
             asyncio.create_task(periodic_cleanup())
             asyncio.create_task(periodic_ingest())
