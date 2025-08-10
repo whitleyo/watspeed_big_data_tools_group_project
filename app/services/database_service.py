@@ -137,14 +137,16 @@ class DataBaseService:
         objects = self.s3.list_objects_v2(Bucket=self.s3_bucket, Prefix=self.s3_prefix).get("Contents", [])
         if objects:
             delete_keys = {"Objects": [{"Key": obj["Key"]} for obj in objects]}
-            self.s3.delete_objects(Bucket=self.s3_bucket, Delete=delete_keys)
+            print(delete_keys)
+            response = self.s3.delete_objects(Bucket=self.s3_bucket, Delete=delete_keys)
+            logger.info(f"response: {response}  ")
             logger.info(f"Deleted {len(delete_keys['Objects'])} objects from S3 bucket '{self.s3_bucket}' with prefix '{self.s3_prefix}'.")
         else:
             logger.info(f"No objects found in S3 bucket '{self.s3_bucket}' with prefix '{self.s3_prefix}'. Nothing to delete.")
         # Log the completion of the nuke operation
         logger.info("Nuke operation completed. All documents in the abstracts collection and S3 have been deleted.")
 
-    async def ingest(self, start_date, end_date, max_pages=5, skip_existing=True):
+    async def ingest(self, start_date, end_date, max_pages=1, skip_existing=True):
         """
         Ingests abstracts from the biorxiv API into MongoDB and stores them in S3.
         Skips documents that already exist in the DB based on DOI.
