@@ -18,6 +18,17 @@ def create_app():
     )
     logger = logging.getLogger(__name__)
 
+    # Initialize the database service
+    from .services.database_service import DataBaseService
+    from .utils.aws import get_boto3_client
+    s3_client = get_boto3_client("s3")
+    s3_bucket = config.AWS_BUCKET_NAME
+    s3_prefix = config.S3_PREFIX
+    mongo_uri = config.MONGO_URI
+
+    app.db_service = DataBaseService(s3=s3_client, s3_bucket=s3_bucket, s3_prefix=s3_prefix,
+                                        mongo_uri=mongo_uri, db_name="biorxiv")
+
     @app.before_serving
     async def start_background_tasks():
         async def periodic_cleanup():
@@ -41,23 +52,14 @@ def create_app():
                 s3_prefix = config.S3_PREFIX
                 mongo_uri = config.MONGO_URI
 
-                db_service = DataBaseService(s3=s3_client, s3_bucket=s3_bucket, s3_prefix=s3_prefix,
+                nuke_db_service = DataBaseService(s3=s3_client, s3_bucket=s3_bucket, s3_prefix=s3_prefix,
                                              mongo_uri=mongo_uri, db_name="biorxiv")
-                await db_service.setup()
-                await db_service.nuke_db()
+                await nuke_db_service.setup()
+                await nuke_db_service.nuke_db()
                 logger.info("Database nuked on startup as per configuration.")
 
         async def initialize_db():
-            from .services.database_service import DataBaseService
-            from .utils.aws import get_boto3_client
-
-            s3_client = get_boto3_client("s3")
-            s3_bucket = config.AWS_BUCKET_NAME
-            s3_prefix = config.S3_PREFIX
-            mongo_uri = config.MONGO_URI
-
-            app.db_service = DataBaseService(s3=s3_client, s3_bucket=s3_bucket, s3_prefix=s3_prefix,
-                                             mongo_uri=mongo_uri, db_name="biorxiv")
+            
             await app.db_service.setup()
 
         async def periodic_ingest():
