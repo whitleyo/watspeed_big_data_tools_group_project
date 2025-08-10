@@ -51,7 +51,7 @@ class DataBaseService:
             if key.endswith(".json"):
                 response = self.s3.get_object(Bucket=self.s3_bucket, Key=key)
                 content = response["Body"].read().decode("utf-8")
-                data = json.loads(content)
+                data = json_util.loads(content)
                 documents = data if isinstance(data, list) else [data]
 
                 new_docs = []
@@ -123,12 +123,26 @@ class DataBaseService:
 
     async def nuke_db(self):
         """
-        Deletes all documents in the abstracts collection.
+        Deletes all documents in the abstracts collection, as well as anything in S3 with the same prefix.
+        This operation is irreversible and should be used with caution.
+        It is intended for development or testing purposes only.
+        Does not delete the collection itself, only its contents.
         """
         logger.info("Nuking the abstracts collection in MongoDB.")
         if self.check_db_initialized():
             self.db.abstracts.delete_many({})
-        logger.info("All documents in the abstracts collection have been deleted.")
+
+        # delte all objects in S3 with the specified prefix
+        logger.info(f"Deleting all objects in S3 bucket '{self.s3_bucket}' with prefix '{self.s3_prefix}'.")
+        objects = self.s3.list_objects_v2(Bucket=self.s3_bucket, Prefix=self.s3_prefix).get("Contents", [])
+        if objects:
+            delete_keys = {"Objects": [{"Key": obj["Key"]} for obj in objects]}
+            self.s3.delete_objects(Bucket=self.s3_bucket, Delete=delete_keys)
+            logger.info(f"Deleted {len(delete_keys['Objects'])} objects from S3 bucket '{self.s3_bucket}' with prefix '{self.s3_prefix}'.")
+        else:
+            logger.info(f"No objects found in S3 bucket '{self.s3_bucket}' with prefix '{self.s3_prefix}'. Nothing to delete.")
+        # Log the completion of the nuke operation
+        logger.info("Nuke operation completed. All documents in the abstracts collection and S3 have been deleted.")
 
     async def ingest(self, start_date, end_date, max_pages=5, skip_existing=True):
         """
