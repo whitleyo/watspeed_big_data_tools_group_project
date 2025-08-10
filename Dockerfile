@@ -10,8 +10,19 @@ RUN conda install -n base -c conda-forge mamba -y
 # Set working directory
 WORKDIR /app
 
+# Install system dependencies including MongoDB
+RUN apt-get update && \
+    apt-get install -y gnupg curl && \
+    curl -fsSL https://pgp.mongodb.com/server-6.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg && \
+    echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
+    apt-get update && \
+    apt-get install -y mongodb-org && \
+    mkdir -p /data/db
+
 # Copy environment file
 COPY watspeed_data_gr_proj_docker.yml .
+
+
 
 # Use BuildKit cache mount to preserve Conda packages
 RUN --mount=type=cache,target=/opt/conda/pkgs \
@@ -29,5 +40,6 @@ RUN conda clean -afy
 # Copy project files
 COPY . .
 
-# Entrypoint using conda run
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "watspeed_data_gr_proj", "hypercorn", "run:app", "--bind", "0.0.0.0:5000"]
+# Start MongoDB and Quart app
+CMD mongod --fork --logpath /var/log/mongodb.log && \
+    conda run --no-capture-output -n watspeed_data_gr_proj hypercorn run:app --bind 0.0.0.0:5000
