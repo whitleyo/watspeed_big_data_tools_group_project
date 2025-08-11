@@ -63,6 +63,7 @@ COPY . .
 RUN mkdir -p /var/log && touch /var/log/mongodb.log && \
     mkdir -p /data/db && chown -R mongodb:mongodb /data/db
 
-# Start MongoDB and Quart app
-CMD mongod --fork --logpath /var/log/mongodb.log && \
-    conda run --no-capture-output -n watspeed_data_gr_proj hypercorn run:app --bind 0.0.0.0:5000
+CMD ["bash", "-c", "\
+  mongod --fork --logpath /var/log/mongodb.log && \
+  conda run --no-capture-output -n watspeed_data_gr_proj jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root & \
+  conda run --no-capture-output -n watspeed_data_gr_proj hypercorn run:app --bind 0.0.0.0:5000"]
