@@ -29,7 +29,8 @@ def llama_prompting_loop(
     # data loader should support integer indexing
     if not hasattr(data_loader, '__getitem__'):
         raise ValueError("DataLoader must support indexing to use this function.")
-    for batch in data_loader:
+    for idx in idx_use:
+        batch = data_loader[idx]
         abstracts = batch["text"]
         summaries = batch["summary"] if "summary" in batch else ["" for _ in abstracts]
 
