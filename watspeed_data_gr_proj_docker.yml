@@ -344,7 +344,7 @@ dependencies:
       - torchaudio==2.7.1
       - torchvision==0.22.1
       - transformers==4.54.1
-      - tensorboard-2.20.0
+      - tensorboard==2.20.0
       - triton==3.3.1
       - werkzeug==2.3.8
 prefix: /home/whitleyo/anaconda3/envs/watspeed_data_gr_proj
