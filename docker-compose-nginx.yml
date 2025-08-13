@@ -1,15 +1,6 @@
 version: '3.8'
 
 services:
-  quart:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: quart_app
-    expose:
-      - "5000"
-    restart: always
-
   nginx:
     image: nginx:latest
     container_name: nginx_proxy
@@ -21,4 +12,11 @@ services:
       - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - quart
+    restart: always
+
+  quart:
+    image: whitleyo/watspeed-data-gr-proj-app:latest
+    container_name: quart_app
+    expose:
+      - "80:5000"
     restart: always
