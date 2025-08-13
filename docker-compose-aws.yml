@@ -4,8 +4,11 @@ services:
   quart:
     image: whitleyo/watspeed-data-gr-proj-app:latest
     container_name: quart_app
-    expose:
+    ports:
       - "80:5000"
+    environtment:
+      - QUART_ENV=production
+      - RUN_BACKGROUND_TASKS=true
     restart: always
 
 
