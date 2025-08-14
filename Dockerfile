@@ -60,9 +60,12 @@ RUN conda clean -afy
 # Copy project files
 COPY . .
 
+# copy entrypoint script
+COPY ./docker_entrypoint.sh ./docker_entrypoint.sh
+
+RUN chmod +x ./docker_entrypoint.sh
+
 RUN mkdir -p /var/log && touch /var/log/mongodb.log && \
     mkdir -p /data/db && chown -R mongodb:mongodb /data/db
 
-CMD ["bash", "-c", "\
-  mongod --fork --logpath /var/log/mongodb.log && \
-  conda run --no-capture-output -n watspeed_data_gr_proj hypercorn run:app --bind 0.0.0.0:5000"]
+CMD ["./docker_entrypoint.sh"]

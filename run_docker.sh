@@ -13,4 +13,6 @@ docker run \
   -p 5000:5000 \
   -p 8888:8888 \
   -p 27018:27017 \
-  watspeed-data-gr-proj-app
+  watspeed-data-gr-proj-app # \
+  # bash -c "mongod --fork --logpath /var/log/mongodb.log &&\
+  #  conda run --no-capture-output -n watspeed_data_gr_proj hypercorn run:app --bind 0.0.0.0:5000"

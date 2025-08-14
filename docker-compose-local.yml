@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  quart:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quart_app
+    ports:
+      - "5000:5000"     # Quart app
+      - "8888:8888"     # Jupyter Lab
+      - "27018:27017"   # MongoDB (host:container)
+    env_file:
+      - ./env/.env
